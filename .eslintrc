@@ -6,14 +6,17 @@
 		"node": true
 	},
 	"rules": {
-		"object-curly-spacing": "off"
+		"no-tabs": "off",
+		"indent": ["error", "tab", {"SwitchCase": 1}],
+		"object-curly-spacing": "off",
+		"require-jsdoc": "off",
+		"eol-last": "off",
+		"max-len": "off",
+		"quotes": ["error", "single"]
 	},
 	"overrides": [
 		{
-			"files": ["*.js"],
-			"rules": {
-				"semi": ["error", "always"]
-			}
+			"files": ["*.js"]
 		}
 	],
 	"extends": ["eslint:recommended", "google"]
