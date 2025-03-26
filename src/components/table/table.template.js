@@ -7,19 +7,32 @@ const createRow = (index, colsCount) => {
 	for (let i = 0; i <= colsCount; i++) {
 		if (index === 0) {
 			// Column headers (A, B, C, ...)
-			rowDataCells.push(`<div class="cell">${toChar(i + 1)}</div>`);
+			rowDataCells.push(`
+				<div class="column" data-col="${toChar(i + 1)}" data-type="resizable">
+					${toChar(i + 1)}
+					<div class="col-resize" data-resize="col"></div>
+				</div>`);
 		} else {
 			// Regular cells
-			rowDataCells.push(`<div class="cell" data-col="${toChar(i + 1)}" 
-						data-row="${index}" contenteditable spellcheck="false"></div>`);
+			rowDataCells.push(`
+				<div class="cell" 
+					data-col="${toChar(i + 1)}" 
+					data-row="${index}" 
+					contenteditable 
+					spellcheck="false">
+				</div>`);
 		}
 	}
 
 	return `
-            <div class="row">
-                <div class="row-info">${index > 0 ? index : ''}</div>
-                <div class="row-data">${rowDataCells.join('')}</div>
-            </div>
+    <div class="row">
+      <div class="row-info" data-row="${index}" data-type="resizable">
+				${index > 0 ? index + '<div class="row-resize" data-resize="row"></div>' : ''}
+			</div>
+      <div class="row-data">
+				${rowDataCells.join('')}
+			</div>
+    </div>
         `;
 };
 
