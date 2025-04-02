@@ -5,6 +5,7 @@ const createRow = (index, colsCount) => {
 
 	// Create cells for the row
 	for (let i = 0; i <= colsCount; i++) {
+		const id = `${index}:${toChar(i + 1)}`;
 		if (index === 0) {
 			// Column headers (A, B, C, ...)
 			rowDataCells.push(`
@@ -18,6 +19,8 @@ const createRow = (index, colsCount) => {
 				<div class="cell" 
 					data-col="${toChar(i + 1)}" 
 					data-row="${index}" 
+					data-id="${id}" 
+					data-mode="insert"
 					contenteditable 
 					spellcheck="false">
 				</div>`);
