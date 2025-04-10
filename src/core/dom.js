@@ -60,6 +60,15 @@ class Dom {
 		return $(this.$el.closest(selector));
 	}
 
+	findClosestWithDataAttr(el, attribute) {
+		while (el) {
+			const hasDataAttr = [...el.attributes].some((attr) => attr.name.startsWith(attribute));
+			if (hasDataAttr) return el;
+			el = el.parentElement;
+		}
+		return null;
+	}
+
 	getCoords() {
 		return this.$el.getBoundingClientRect();
 	}
@@ -105,7 +114,13 @@ class Dom {
 	}
 
 	find(selector) {
-		return $(document.querySelector(selector));
+		const el = this.$el.querySelector(selector);
+		return el ? $(el) : null;
+	}
+
+	findById(id) {
+		const el = this.find(`[data-id="${id}"]`);
+		return el ? el : null;
 	}
 
 	setCaretToEnd() {

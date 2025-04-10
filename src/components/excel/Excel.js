@@ -1,11 +1,12 @@
 import { $ } from '../../core/dom';
-import { Emitter } from '../../core/Emitter';
 export class Excel {
 	constructor(selector, options) {
 		this.$el = $(selector);
 		this.options = options || {};
-		this.components = this.options.components || [];
-		this.emitter = new Emitter();
+		this.components = options.components || [];
+		this.emitter = options.emitter;
+		this.store = options.store;
+		this.subscriber = options.subscriber;
 	}
 
 	getRootNode() {
@@ -15,6 +16,7 @@ export class Excel {
 			const $domEl = $.createElement('div', Component.className);
 			const component = new Component($domEl, {
 				emitter: this.emitter,
+				store: this.store,
 			});
 			$domEl.html(component.toHTML());
 			$rootDomEl.appendChild($domEl);
@@ -26,10 +28,14 @@ export class Excel {
 
 	render() {
 		this.$el.appendChild(this.getRootNode());
+		this.subscriber.subscribeComponents(this.components);
+		const initialState = JSON.parse(localStorage.getItem('store'));
+		initialState && this.store.setState(initialState);
 		this.components.forEach((component) => component.init());
 	}
 
 	destroy() {
 		this.components.forEach((component) => component.destroy());
+		this.subscriber.unsubscribeFromStore();
 	}
 }

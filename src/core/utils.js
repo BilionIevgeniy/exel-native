@@ -100,7 +100,7 @@ export function nextSelection(key, current) {
 	if (nextCol < 1 || nextRow < 1) {
 		return current;
 	}
-
-	const newCell = current.find(`[data-id="${nextRow}:${numberToCol(nextCol)}"]`);
+	const id = `${nextRow}:${numberToCol(nextCol)}`;
+	const newCell = current.findById(id);
 	return newCell;
 }

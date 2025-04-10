@@ -25,6 +25,5 @@ export class Header extends ExcelComponent {
 	}
 
 	onClick(event) {
-		console.log('Header: click', event);
 	}
 }

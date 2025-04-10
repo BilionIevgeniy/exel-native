@@ -1,10 +1,11 @@
 import { $ } from '../../core/dom';
-import { FORMULA_EVENTS, TABLE_EVENTS } from '../../core/Events';
+import { FORMULA_EVENTS, TABLE_EVENTS } from '../../core/Consts';
 import { ExcelComponent } from '../../core/ExcelComponent';
 import { nextSelection } from '../../core/utils';
-import { tableResize } from './table.resize';
+import { resizeAllCells, tableResize } from './table.resize';
 import { createTable } from './table.template';
 import { TableSelection } from './TableSelection';
+import { cellInputAction, resizeAction, setCurrentSellValueAction } from '../../redux/components/tableStore/tableActions';
 
 export class Table extends ExcelComponent {
 	static className = 'excel__table';
@@ -23,8 +24,17 @@ export class Table extends ExcelComponent {
 		return createTable(this.rowsCount, this.colsCount);
 	}
 
+	async resizeTable(event) {
+		const resizer = await tableResize(event);
+		try {
+			this.$dispatch(resizeAction(resizer));
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
 	onMousedown(event) {
-		tableResize(event);
+		this.resizeTable(event);
 		const $cell = $(event.target);
 		const id = $cell.data.id;
 		if (id) {
@@ -34,14 +44,23 @@ export class Table extends ExcelComponent {
 				this.selection.select($cell);
 			}
 		}
-		this.$emit(TABLE_EVENTS.DISPATCH_VALUE, $cell.text());
+		this.$dispatch(setCurrentSellValueAction({
+			value: $cell.text(),
+		}));
 	}
 
 	onInput(event) {
 		const $cell = $(event.target);
 		const id = $cell.data.id;
 		if (id) {
-			this.$emit(TABLE_EVENTS.DISPATCH_VALUE, event.target.textContent);
+			const value = event.target.textContent;
+			this.$dispatch(cellInputAction({
+				id,
+				value,
+			}));
+			this.$dispatch(setCurrentSellValueAction({
+				value,
+			}));
 		}
 	}
 
@@ -65,17 +84,46 @@ export class Table extends ExcelComponent {
 		});
 	}
 
-	init() {
-		super.init();
-		this.selection = new TableSelection();
-		const initialCell = this.$root.find('[data-id="1:A"]');
+	setInitialValues() {
+		const { tableState: { colState, rowState, cellContent } } = this.store.getState();
+		Object.keys(colState).forEach((col) => {
+			resizeAllCells({ col, value: colState[col] });
+		});
+		Object.keys(rowState).forEach((row) => {
+			resizeAllCells({ row, value: rowState[row] });
+		});
+		Object.keys(cellContent).forEach((id) => {
+			const $cell = this.$root.findById(id);
+			$cell.text(cellContent[id].value);
+		});
+	}
+
+	initialSelection() {
+		this.selection = new TableSelection(this.$dispatch.bind(this), this.$root);
+		const initialCell = this.$root.findById('1:A');
 		this.selection.select(initialCell);
-		this.$emit(TABLE_EVENTS.DISPATCH_VALUE, initialCell.text());
+		this.$dispatch(setCurrentSellValueAction({
+			value: initialCell.text(),
+		}));
+	}
+
+	initSubscribers() {
 		this.$on(FORMULA_EVENTS.FORMULA_INPUT, (value) => {
 			this.selection.current.text(value);
+			this.$dispatch(cellInputAction({
+				id: this.selection.current.id(),
+				value,
+			}));
 		});
 		this.$on(FORMULA_EVENTS.FORMULA_DONE, () => {
 			this.selection.current.setCaretToEnd();
 		});
+	}
+
+	init() {
+		super.init();
+		this.setInitialValues();
+		this.initialSelection();
+		this.initSubscribers();
 	}
 }

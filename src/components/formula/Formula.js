@@ -1,5 +1,5 @@
 import { $ } from '../../core/dom';
-import { FORMULA_EVENTS, TABLE_EVENTS } from '../../core/Events';
+import { FORMULA_EVENTS } from '../../core/Consts';
 import { ExcelComponent } from '../../core/ExcelComponent';
 
 export class Formula extends ExcelComponent {
@@ -11,7 +11,9 @@ export class Formula extends ExcelComponent {
 			listeners: ['input', 'keydown'],
 			...options,
 		});
+		this.subscribe = ['tableState'];
 	}
+
 	toHTML() {
 		return `
 		<div class="info">fx</div>
@@ -33,10 +35,12 @@ export class Formula extends ExcelComponent {
 		}
 	}
 
+	onStoreChange({ tableState }) {
+		this.formula.text(tableState.currentCellValue);
+	}
+
 	init() {
 		super.init();
-		this.$on(TABLE_EVENTS.DISPATCH_VALUE, (value) => {
-			this.$root.find('[data-input]').text(value);
-		});
+		this.formula = this.$root.find('[data-input]');
 	}
 }
