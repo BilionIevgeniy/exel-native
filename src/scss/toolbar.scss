@@ -1,18 +1,18 @@
-@import'variables';
-@import'mixins';
+@use "variables" as vars;
+@use "mixins" as mix;
 
 .excel__toolbar {
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 34px;
-	height: $toolbar-height;
-	border-top: $border;
-	border-bottom: $border;
-	padding: 7px 10px;
-	display: flex;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34px;
+  height: vars.$toolbar-height;
+  border-top: vars.$border;
+  border-bottom: vars.$border;
+  padding: 7px 10px;
+  display: flex;
 
-	& .button {
-		@include button(red)
-	}
+  & .button {
+    @include mix.button(red);
+  }
 }
